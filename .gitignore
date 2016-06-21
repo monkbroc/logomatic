@@ -1,0 +1,5 @@
+# Eagle backups
+*.?#?
+*.lck
+*.epf
+*.pro
