@@ -45,24 +45,24 @@ unsigned int mask[17] = {
 };
 
 // LZW variables
-byte *pbuf;
-int bbits;
-int bbuf;
-int cursize;                // The current code size
-int curmask;
-int codesize;
-int clear_code;
-int end_code;
-int newcodes;               // First available code
-int top_slot;               // Highest code for current size
-int extra_slot;
-int slot;                   // Last read code
-int fc, oc;
-int bs;                     // Current buffer size for GIF
-byte *sp;
-byte stack  [LZW_SIZTABLE];
-byte suffix [LZW_SIZTABLE];
-unsigned int prefix [LZW_SIZTABLE];
+static byte *pbuf;
+static int bbits;
+static int bbuf;
+static int cursize;                // The current code size
+static int curmask;
+static int codesize;
+static int clear_code;
+static int end_code;
+static int newcodes;               // First available code
+static int top_slot;               // Highest code for current size
+static int extra_slot;
+static int slot;                   // Last read code
+static int fc, oc;
+static int bs;                     // Current buffer size for GIF
+static byte *sp;
+static byte stack  [LZW_SIZTABLE];
+static byte suffix [LZW_SIZTABLE];
+static unsigned int prefix [LZW_SIZTABLE];
 
 // Initialize LZW decoder
 //   csize initial code size in bits

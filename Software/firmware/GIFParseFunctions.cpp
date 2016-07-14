@@ -40,13 +40,6 @@ const int WIDTH  = 32;
 const int HEIGHT = 32;
 // maximum bounds of the decoded GIF (dimensions of imageData buffer)
 
-// Error codes
-#define ERROR_NONE		           0
-#define ERROR_FILEOPEN		       -1
-#define ERROR_FILENOTGIF	       -2
-#define ERROR_BADGIFFORMAT         -3
-#define ERROR_UNKNOWNCONTROLEXT	   -4
-
 #define GIFHDRTAGNORM   "GIF87a"  // tag in valid GIF file
 #define GIFHDRTAGNORM1  "GIF89a"  // tag in valid GIF file
 #define GIFHDRSIZE 6
@@ -107,6 +100,7 @@ byte imageDataBU[WIDTH * HEIGHT];
 callback screenClearCallback;
 callback updateScreenCallback;
 pixel_callback drawPixelCallback;
+delay_callback delayCallback;
 
 void setUpdateScreenCallback(callback f) {
     updateScreenCallback = f;
@@ -118,6 +112,10 @@ void setDrawPixelCallback(pixel_callback f) {
 
 void setScreenClearCallback(callback f) {
     screenClearCallback = f;
+}
+
+void setDelayCallback(delay_callback f) {
+    delayCallback = f;
 }
 
 // Backup the read stream by n bytes
@@ -385,7 +383,7 @@ int parseGIFFileTerminator() {
 }
 
 // Parse table based image data
-void parseTableBasedImage() {
+int parseTableBasedImage() {
 
 #if gDEBUG == 1
     Serial.println("\nProcessing Table Based Image Descriptor");
@@ -541,11 +539,13 @@ void parseTableBasedImage() {
     }
 
     // Decompress LZW data and display the frame
-    decompressAndDisplayFrame();
+    int result = decompressAndDisplayFrame();
 
     // Graphic control extension is for a single frame
     transparentColorIndex = NO_TRANSPARENT_INDEX;
     disposalMethod = DISPOSAL_NONE;
+
+    return result;
 }
 
 // Parse gif data
@@ -571,8 +571,10 @@ int parseData() {
 #if gDEBUG == 1
     Serial.println("\nParsing Table Based");
 #endif
-            parseTableBasedImage();
-
+            int result = parseTableBasedImage();
+            if (result != ERROR_NONE) {
+              return result;
+            }
         }
         else if (b == 0x21) {
             // Parse extension
@@ -655,7 +657,11 @@ int processGIFFile(const char *pathname) {
 
     // Parse gif data
     int result = parseData();
-    if (result != ERROR_NONE) {
+    if (result == ERROR_ABORTED) {
+		Serial.println("Aborting decoding this image");
+		file.close();
+		return result;
+    } else if (result != ERROR_NONE) {
         Serial.println("Error: ");
         Serial.println(result);
         Serial.println(" occurred during parsing of data");
@@ -671,7 +677,7 @@ int processGIFFile(const char *pathname) {
 }
 
 // Decompress LZW data and display animation frame
-void decompressAndDisplayFrame() {
+int decompressAndDisplayFrame() {
 
     // Each pixel of image is 8 bits and is an index into the palette
 
@@ -731,6 +737,9 @@ void decompressAndDisplayFrame() {
     nextFrameTime_ms -= millis();
 
     // the space between frames isn't perfect as there is a variable amount of time to process the next frame, but this gets it close
-    if(nextFrameTime_ms > 0)
-        delay(nextFrameTime_ms);
+    if(nextFrameTime_ms > 0 && delayCallback) {
+        bool abort = delayCallback(nextFrameTime_ms);
+        return abort ? ERROR_ABORTED : ERROR_NONE;
+    }
+    return ERROR_NONE;
 }
