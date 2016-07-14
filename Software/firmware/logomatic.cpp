@@ -76,7 +76,7 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
   }
 }
 
-bool delayCallback(uint32_t ms) {
+bool cancellableDelay(uint32_t ms) {
   // TODO: make this function check the gesture sensor and return true
   // to abort the current GIF display
   delay(ms);
@@ -111,7 +111,7 @@ void setupGifDecoder() {
     setScreenClearCallback(screenClearCallback);
     setUpdateScreenCallback(updateScreenCallback);
     setDrawPixelCallback(drawPixelCallback);
-    setDelayCallback(delayCallback);
+    setDelayCallback(cancellableDelay);
 
     // Initialize and clear strip
     strip.begin();
@@ -192,7 +192,7 @@ void loop() {
         shuffle(indices, numFiles);
 
         while(currentFile < numFiles) {
-            // Clear strip for new animation here, but this might cause flicker with short animations
+            // Clear strip for new animation
             strip.clear();
 
             getGIFFilenameByIndex(GIF_DIRECTORY, indices[currentFile], pathname);

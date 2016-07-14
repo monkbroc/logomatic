@@ -81,7 +81,7 @@ const int pixelMapping[] = {
 
 int pixelCoordToLinearOffset(int x, int y)
 {
-  const int pixelCount = sizeof(pixelMapping)/sizeof(pixelMapping[0]);
+  const int pixelCount = sizeof(pixelMapping)/sizeof(pixelMapping[0])/2;
   for (int i = 0; i < pixelCount; i++) {
     if (pixelMapping[2*i] == x && pixelMapping[2*i+1] == y) {
       return i;
