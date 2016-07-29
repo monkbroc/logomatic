@@ -7,13 +7,18 @@
 #include "math.h"
 #include "SdFat.h"
 #include "SparkFun_APDS9960.h"
+#include "gamma.h"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(MANUAL);
 
+#define DISPLAY_TIME_SECONDS 20
+
+#define GIF_DIRECTORY "/logo/"
+
 /** LED strip configuration **/
 #define PIXEL_PIN A7
-#define PIXEL_COUNT 60
+#define PIXEL_COUNT 113
 #define PIXEL_TYPE WS2812B
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
@@ -32,32 +37,6 @@ SdFat sd;
 const uint8_t chipSelect = A2;
 /****************************************/
 
-/********** RGB565 Color definitions **********/
-#define Black           0x0000
-#define Navy            0x000F
-#define DarkGreen       0x03E0
-#define DarkCyan        0x03EF
-#define Maroon          0x7800
-#define Purple          0x780F
-#define Olive           0x7BE0
-#define LightGrey       0xC618
-#define DarkGrey        0x7BEF
-#define Blue            0x001F
-#define Green           0x07E0
-#define Cyan            0x07FF
-#define Red             0xF800
-#define Magenta         0xF81F
-#define Yellow          0xFFE0
-#define White           0xFFFF
-#define Orange          0xFD20
-#define GreenYellow     0xAFE5
-#define Pink			0xF81F
-/**********************************************/
-
-
-#define DISPLAY_TIME_SECONDS 5
-
-#define GIF_DIRECTORY "/logo/"
 
 int numFiles, currentFile;
 
@@ -72,6 +51,7 @@ void updateScreenCallback(void) {
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
   int stripPosition = pixelCoordToLinearOffset(x, y);
   if (stripPosition >= 0) {
+    //strip.setPixelColor(stripPosition, CORRECT_GAMMA(red, green, blue));
     strip.setPixelColor(stripPosition, red, green, blue);
   }
 }
