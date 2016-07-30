@@ -8,6 +8,7 @@
 #include "SdFat.h"
 #include "SparkFun_APDS9960.h"
 #include "gamma.h"
+#include "color_animation.h"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(MANUAL);

@@ -55,7 +55,6 @@ static int clear_code;
 static int end_code;
 static int newcodes;               // First available code
 static int top_slot;               // Highest code for current size
-static int extra_slot;
 static int slot;                   // Last read code
 static int fc, oc;
 static int bs;                     // Current buffer size for GIF
