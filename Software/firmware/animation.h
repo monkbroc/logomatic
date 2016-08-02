@@ -1,18 +1,11 @@
+/* An animation for the LEDs
+ * Put the logic in run() and use the context.wait() on a regular
+ * basis so the rest of the program can continue running
+ */
+
 #pragma once
 
-#include <cstdint>
-
-#include "rect.h"
-
-class AnimationContext {
-public:
-	virtual Rect displaySize() = 0;
-	virtual void clear() = 0;
-	virtual void show() = 0;
-	virtual void drawPixel(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) = 0;
-	virtual void delay(uint32_t millis) = 0;
-	virtual uint32_t now() = 0;
-};
+#include "animation_context.h"
 
 class Animation {
 public:

@@ -1,29 +1,23 @@
 /* Animated Logo Project
  */
 
-#include "neopixel.h" // Hardware-specific library
-#include "PixelMapping.h"
-#include "GIFDecoder.h"
+#include "config.h"
 #include "math.h"
 #include "SdFat.h"
+#include "GIFDecoder.h"
 #include "SparkFun_APDS9960.h"
 #include "gamma.h"
 
 #include "color_animation.h"
 #include "breathe_animation.h"
+#include "gif_animation.h"
+
+#include "neopixel_animation_context.h"
 
 SYSTEM_THREAD(ENABLED);
 
-#define DISPLAY_TIME_SECONDS 20
+NeopixelAnimationContext context;
 
-#define GIF_DIRECTORY "/logo/"
-
-/** LED strip configuration **/
-#define PIXEL_PIN A7
-#define PIXEL_COUNT 113
-#define PIXEL_TYPE WS2812B
-
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 
 /** Gesture sensor configuration **/
 #define APDS9960_INT    D2 // Needs to be an interrupt pin
@@ -31,38 +25,19 @@ bool gestureDetected = false;
 
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
 
-
 /** SD card configuration and CS pins**/
 #define SPI_CONFIGURATION 0
 
 SdFat sd;
 const uint8_t chipSelect = A2;
+
+/** Battery charger **/
+PMIC batteryCharger;
+
 /****************************************/
 
 
 int numFiles, currentFile;
-
-void screenClearCallback(void) {
-  strip.clear();
-}
-
-void updateScreenCallback(void) {
-  strip.show();
-}
-
-void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
-  int stripPosition = pixelCoordToLinearOffset(x, y);
-  if (stripPosition >= 0) {
-    strip.setPixelColor(stripPosition, CORRECT_GAMMA(red, green, blue));
-  }
-}
-
-bool cancellableDelay(uint32_t ms) {
-  // TODO: make this function check the gesture sensor and return true
-  // to abort the current GIF display
-  delay(ms);
-  return false;
-}
 
 void gestureInterrupt() {
   gestureDetected = true;
@@ -88,15 +63,10 @@ void setupGestureSensor() {
   Serial.println("Gesture sensor is now running");
 }
 
-void setupGifDecoder() {
-    setScreenClearCallback(screenClearCallback);
-    setUpdateScreenCallback(updateScreenCallback);
-    setDrawPixelCallback(drawPixelCallback);
-    setDelayCallback(cancellableDelay);
-
+void setupAnimationContext() {
     // Initialize and clear strip
-    strip.begin();
-    strip.show();
+    context.begin();
+    context.show();
 }
 
 void setupSdCard() {
@@ -122,13 +92,16 @@ void setupSdCard() {
 
 // Setup method runs once, when the sketch starts
 void setup() {
+    // Stop red LED blinking on Electron
+    batteryCharger.disableCharging();
+
 	Serial.begin(9600);
     delay(100);
     Serial.println("Logomatic");
     randomSeed(HAL_RNG_GetRandomNumber());
 
     setupGestureSensor();
-    setupGifDecoder();
+    setupAnimationContext();
     setupSdCard();
 }
 
@@ -159,7 +132,6 @@ void shuffle(int *indices, int numFiles) {
 }
 
 void loop() {
-    unsigned long futureTime;
     char pathname[30];
 
     int *indices = new int[numFiles];
@@ -172,20 +144,11 @@ void loop() {
         shuffle(indices, numFiles);
 
         while(currentFile < numFiles) {
-            // Clear strip for new animation
-            strip.clear();
-
             getGIFFilenameByIndex(GIF_DIRECTORY, indices[currentFile], pathname);
 
-            // Calculate time in the future to terminate animation
-            futureTime = millis() + (DISPLAY_TIME_SECONDS * 1000);
+            GifAnimation anim(context, pathname, DISPLAY_TIME_SECONDS * 1000);
+            anim.run();
 
-            while (futureTime > millis()) {
-                int result = processGIFFile(pathname);
-                if (result == ERROR_ABORTED) {
-                    break;
-                }
-            }
             currentFile++;
         }
         currentFile = 0;

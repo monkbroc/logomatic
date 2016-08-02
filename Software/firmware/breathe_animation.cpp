@@ -29,7 +29,8 @@ BreatheAnimation::BreatheAnimation(
 			uint8_t red, uint8_t green, uint8_t blue,
 			uint32_t duration)
 	: Animation{context, duration},
-	r{red}, g{green}, b{blue}
+	r{red}, g{green}, b{blue},
+    _abort(false)
 {
 }
 
@@ -43,7 +44,7 @@ void BreatheAnimation::run()
 
 		brightness.next();
 		fillScreen(brightness.get());
-		context.delay(delay);
+		context.wait(delay);
 	}
 }
 

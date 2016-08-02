@@ -12,7 +12,7 @@ ColorAnimation::ColorAnimation(
 void ColorAnimation::run()
 {
 	fillScreen();
-	context.delay(duration);
+	context.wait(duration);
 }
 
 void ColorAnimation::fillScreen() {
