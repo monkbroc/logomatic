@@ -1,12 +1,13 @@
 #pragma once
 
 #include "animation.h"
+#include "color.h"
 
 class BreatheAnimation : public Animation {
 public:
 	BreatheAnimation(
 			AnimationContext &context,
-			uint8_t red, uint8_t green, uint8_t blue,
+			Color color,
 			uint32_t duration);
 
 	void run() override;
@@ -17,6 +18,6 @@ protected:
 
 	static uint8_t delay;
 
-	uint8_t r, g, b;
+	Color color;
 	bool _abort;
 };

@@ -10,14 +10,22 @@
 
 #include "color_animation.h"
 #include "breathe_animation.h"
+#include "breathe_rainbow_animation.h"
 #include "gif_animation.h"
 
 #include "neopixel_animation_context.h"
+#include <deque>
+using namespace std;
 
 SYSTEM_THREAD(ENABLED);
 
-NeopixelAnimationContext context;
+static const Color ParticleBlue(0,173,239);
 
+void processInput();
+NeopixelAnimationContext context(processInput);
+
+/* Queue of animations. The front of the queue is the current animation */
+deque<Animation *> animationQueue;
 
 /** Gesture sensor configuration **/
 #define APDS9960_INT    D2 // Needs to be an interrupt pin
@@ -105,22 +113,87 @@ void setup() {
     setupSdCard();
 }
 
-bool handleGesture() {
+void abortCurrentAnimation() {
+    if (!animationQueue.empty()) {
+        animationQueue.front()->abort();
+    }
+}
+
+void addDefaultAnimation() {
+    Animation *anim = new BreatheAnimation{context, ParticleBlue, Animation::FOREVER};
+    animationQueue.push_back(anim);
+}
+
+void nextAnimation() {
+    if (!animationQueue.empty()) {
+        Animation *previousAnim = animationQueue.front();
+        animationQueue.pop_front();
+        delete previousAnim;
+    }
+
+    if (animationQueue.empty()) {
+        addDefaultAnimation();
+    }
+}
+
+void runCurrentAnimation() {
+    if (!animationQueue.empty()) {
+        animationQueue.front()->run();
+    }
+}
+
+void loop() {
+    while (true) {
+        nextAnimation();
+        runCurrentAnimation();
+    }
+}
+
+void playNextGif() {
+    // currentFile will be incremented after the current animation stops
+    currentFile = (currentFile - 2 + numFiles) % numFiles;
+}
+
+void playPreviousGif() {
+}
+
+bool processGestureSensor() {
     if (apds.isGestureAvailable()) {
         switch (apds.readGesture()) {
             case DIR_LEFT:
-                // currentFile will be incremented after the current animation stops
-                currentFile = (currentFile - 2 + numFiles) % numFiles;
+                Serial.println("Left gesture!");
+                playNextGif();
                 return true;
                 break;
             case DIR_RIGHT:
+                Serial.println("Right gesture!");
+                playPreviousGif();
                 return true;
+                break;
+            case DIR_UP:
+                Serial.println("Up gesture!");
+                break;
+            case DIR_DOWN:
+                Serial.println("Down gesture!");
+                break;
+            case DIR_NEAR:
+                Serial.println("Near gesture!");
+                break;
+            case DIR_FAR:
+                Serial.println("Far gesture!");
                 break;
         }
     }
 
     return false;
 }
+
+void processInput() {
+    processGestureSensor();
+
+}
+
+/*
 
 void shuffle(int *indices, int numFiles) {
     for(int i = numFiles - 1; i > 0; --i) {
@@ -154,4 +227,5 @@ void loop() {
         currentFile = 0;
     }
 }
+*/
 

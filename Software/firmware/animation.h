@@ -18,6 +18,8 @@ public:
 	virtual void run() = 0;
 	virtual void abort() = 0;
 
+    static const uint32_t FOREVER = (uint32_t)-1;
+
 protected:
 	AnimationContext &context;
 	uint32_t duration;

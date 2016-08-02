@@ -3,8 +3,9 @@
 #include "PixelMapping.h"
 #include "config.h"
 
-NeopixelAnimationContext::NeopixelAnimationContext() 
-    : strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE)
+NeopixelAnimationContext::NeopixelAnimationContext(ProcessCallback process) 
+    : strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE),
+    process(process)
 {
 }
 
@@ -32,9 +33,15 @@ void NeopixelAnimationContext::drawPixel(int16_t x, int16_t y, uint8_t red, uint
     }
 }
 
-void NeopixelAnimationContext::wait(uint32_t millis) {
-    // TODO: Run the input polling loop
-    delay(millis);
+void NeopixelAnimationContext::wait(uint32_t ms) {
+    uint32_t start = millis();
+    do {
+        if (process) {
+            process();
+        }
+
+        delay(1);
+    } while(millis() - start > ms);
 }
 
 uint32_t NeopixelAnimationContext::now() {
