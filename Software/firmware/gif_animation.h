@@ -2,18 +2,19 @@
 
 #include "animation.h"
 
-class ColorAnimation : public Animation {
+class GifAnimation : public Animation {
 public:
-	ColorAnimation(
+	GifAnimation(
 			AnimationContext &context,
-			uint8_t red, uint8_t green, uint8_t blue,
+			char *filename,
 			uint32_t duration);
+	~GifAnimation();
 
 	void run() override;
 	void abort() override;
 
 protected:
-	void fillScreen();
+	bool _abort;
 
-	uint8_t r, g, b;
+	char *filename;
 };

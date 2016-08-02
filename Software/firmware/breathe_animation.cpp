@@ -1,4 +1,4 @@
-#include "color_animation.h"
+#include "breathe_animation.h"
 
 uint8_t BreatheAnimation::delay = 10;
 
@@ -24,11 +24,11 @@ protected:
 	uint8_t direction;
 };
 
-BreatheAnimation::ColorAnimation(
+BreatheAnimation::BreatheAnimation(
 			AnimationContext &context,
 			uint8_t red, uint8_t green, uint8_t blue,
 			uint32_t duration)
-	: super{context, duration},
+	: Animation{context, duration},
 	r{red}, g{green}, b{blue}
 {
 }

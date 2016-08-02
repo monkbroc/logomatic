@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 
 #include "rect.h"
@@ -15,8 +17,8 @@ public:
 class Animation {
 public:
 	Animation(AnimationContext &context, uint32_t duration) :
-		context{context},
-		duration{duration}
+		context(context),
+		duration(duration)
 	{}
 	virtual ~Animation() {}
 

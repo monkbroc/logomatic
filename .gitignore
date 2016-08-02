@@ -3,3 +3,6 @@
 *.lck
 *.epf
 *.pro
+
+# Particle binaries
+*.bin

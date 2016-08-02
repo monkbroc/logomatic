@@ -8,10 +8,11 @@
 #include "SdFat.h"
 #include "SparkFun_APDS9960.h"
 #include "gamma.h"
+
 #include "color_animation.h"
+#include "breathe_animation.h"
 
 SYSTEM_THREAD(ENABLED);
-SYSTEM_MODE(MANUAL);
 
 #define DISPLAY_TIME_SECONDS 20
 
@@ -52,8 +53,7 @@ void updateScreenCallback(void) {
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
   int stripPosition = pixelCoordToLinearOffset(x, y);
   if (stripPosition >= 0) {
-    //strip.setPixelColor(stripPosition, CORRECT_GAMMA(red, green, blue));
-    strip.setPixelColor(stripPosition, red, green, blue);
+    strip.setPixelColor(stripPosition, CORRECT_GAMMA(red, green, blue));
   }
 }
 
@@ -126,7 +126,6 @@ void setup() {
     delay(100);
     Serial.println("Logomatic");
     randomSeed(HAL_RNG_GetRandomNumber());
-
 
     setupGestureSensor();
     setupGifDecoder();

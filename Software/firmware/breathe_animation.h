@@ -1,3 +1,5 @@
+#pragma once
+
 #include "animation.h"
 
 class BreatheAnimation : public Animation {

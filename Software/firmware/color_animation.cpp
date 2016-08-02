@@ -4,7 +4,7 @@ ColorAnimation::ColorAnimation(
 			AnimationContext &context,
 			uint8_t red, uint8_t green, uint8_t blue,
 			uint32_t duration)
-	: super{context, duration},
+	: Animation{context, duration},
 	r{red}, g{green}, b{blue}
 {
 }
