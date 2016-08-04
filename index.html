@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+  <head>
+    <title>Logomatic</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/particle-api-js/5/particle.min.js"></script>
+  </head>
+  <body>
+    <h1>Logomatic</h1>
+
+    <h2>Animations</h2>
+    <ul>
+      <li><a href="#" onClick="animation('usa')">USA</a></li>
+      <li><a href="#" onClick="animation('rainbow')">Rainbow</a></li>
+      <li><a href="#" onClick="animation('fire')">Fire</a></li>
+      <li><a href="#" onClick="animation('water')">Water</a></li>
+      <li><a href="#" onClick="animation('dope')">Dope</a></li>
+      <li><a href="#" onClick="animation('marquee')">Theater marquee</a></li>
+    </ul>
+
+    <h2>Breathe</h2>
+    <ul>
+      <li><a href="#" onClick="breathe('particle blue')">Particle blue</a></li>
+      <li><a href="#" onClick="breathe('forest green')">Forest green</a></li>
+      <li><a href="#" onClick="breathe('brick red')">Brick Red</a></li>
+      <li><a href="#" onClick="breathe('royal purple')">Royal Purple</a></li>
+      <li><a href="#" onClick="breathe('rainbow')">Rainbow</a></li>
+    </ul>
+
+    <h2>Color</h2>
+    <ul>
+      <li><a href="#" onClick="color('shocking pink')">Shocking Pink</a></li>
+      <li><a href="#" onClick="color('sizzling sunrise')">Sizzling Sunrise</a></li>
+      <li><a href="#" onClick="color('razzmatazz')">Razzmatazz</a></li>
+      <li><a href="#" onClick="color('maize, blue')">Maize &amp; Blue</a></li>
+      <li><a href="#" onClick="color('dark green, white')">Green &amp; White</a></li>
+      <li><a href="#" onClick="color('mango, asparagus')">Papaya &amp; Asparagus</a></li>
+      <li><a href="#" onClick="color('saphire, ruby')">Saphire &amp; Ruby</a></li>
+      <li><a href="#" onClick="color('gold, silver')">Gold &amp; Silver</a></li>
+    </ul>
+
+    <script>
+      var token = 'e91d460eee1480fc32c5b0d66c10a37dd87bf512';
+      var device = 'logo';
+      var particle = new Particle();
+
+      function animation(name) {
+        particle.callFunction({ deviceId: device, name: 'gif', argument: name, auth: token })
+        .then(function (result) { console.log(result); }, function (err) { console.error(err) });
+      }
+
+      function breathe(colorName) {
+        particle.callFunction({ deviceId: device, name: 'breathe', argument: colorName, auth: token })
+        .then(function (result) { console.log(result); }, function (err) { console.error(err) });
+      }
+
+      function color(colorName) {
+        particle.callFunction({ deviceId: device, name: 'color', argument: colorName, auth: token })
+        .then(function (result) { console.log(result); }, function (err) { console.error(err) });
+      }
+
+    </script>
+  </body>
+</html>
