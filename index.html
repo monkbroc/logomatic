@@ -52,7 +52,9 @@
     </style>
   </head>
   <body>
-    <img class="main-logo" src="particle.svg">
+    <a href="#" onClick="breathe('particle blue'); event.preventDefault();">
+      <img class="main-logo" src="particle.svg">
+    </a>
 
     <h2>Animations</h2>
     <ul class="flex-list">
@@ -66,7 +68,6 @@
 
     <h2>Breathe</h2>
     <ul class="word-list">
-      <li><h3><a href="#" onClick="breathe('particle blue'); event.preventDefault();">Particle blue</a></h3></li>
       <li><h3><a href="#" onClick="breathe('forest green'); event.preventDefault();">Forest green</a></h3></li>
       <li><h3><a href="#" onClick="breathe('brick red'); event.preventDefault();">Brick Red</a></h3></li>
       <li><h3><a href="#" onClick="breathe('royal purple'); event.preventDefault();">Royal Purple</a></h3></li>
@@ -84,6 +85,10 @@
       <li><h3><a href="#" onClick="color('saphire, ruby'); event.preventDefault();">Saphire &amp; Ruby</a></h3></li>
       <li><h3><a href="#" onClick="color('gold, silver'); event.preventDefault();">Gold &amp; Silver</a></h3></li>
     </ul>
+
+    <a href="#" onClick="off(); event.preventDefault();">
+      <h2>Off</h2>
+    </a>
 
     <div class="bottom-space"></div>
 
@@ -104,6 +109,11 @@
 
       function color(colorName) {
         particle.callFunction({ deviceId: device, name: 'color', argument: colorName, auth: token })
+        .then(function (result) { console.log(result); }, function (err) { console.error(err) });
+      }
+
+      function off() {
+        particle.callFunction({ deviceId: device, name: 'off', auth: token })
         .then(function (result) { console.log(result); }, function (err) { console.error(err) });
       }
 
