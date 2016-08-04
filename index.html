@@ -8,6 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <style>
+      body {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
       .main-logo {
         display: block;
         margin: 0 auto;
@@ -24,10 +29,26 @@
         justify-content: space-around;
         flex-wrap: wrap;
         padding: 0;
+        max-width: 400px;
+        margin: 0 auto;
       }
       .ico img {
         padding: 30px;
       }
+
+      .word-list li {
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+
+      h2 {
+        margin-top: 60px;
+      }
+
+      .bottom-space {
+        min-height: 200px;
+      }
+
     </style>
   </head>
   <body>
@@ -44,7 +65,7 @@
     </ul>
 
     <h2>Breathe</h2>
-    <ul>
+    <ul class="word-list">
       <li><h3><a href="#" onClick="breathe('particle blue'); event.preventDefault();">Particle blue</a></h3></li>
       <li><h3><a href="#" onClick="breathe('forest green'); event.preventDefault();">Forest green</a></h3></li>
       <li><h3><a href="#" onClick="breathe('brick red'); event.preventDefault();">Brick Red</a></h3></li>
@@ -53,7 +74,7 @@
     </ul>
 
     <h2>Color</h2>
-    <ul>
+    <ul class="word-list">
       <li><h3><a href="#" onClick="color('shocking pink'); event.preventDefault();">Shocking Pink</a></h3></li>
       <li><h3><a href="#" onClick="color('sizzling sunrise'); event.preventDefault();">Sizzling Sunrise</a></h3></li>
       <li><h3><a href="#" onClick="color('razzmatazz'); event.preventDefault();">Razzmatazz</a></h3></li>
@@ -63,6 +84,8 @@
       <li><h3><a href="#" onClick="color('saphire, ruby'); event.preventDefault();">Saphire &amp; Ruby</a></h3></li>
       <li><h3><a href="#" onClick="color('gold, silver'); event.preventDefault();">Gold &amp; Silver</a></h3></li>
     </ul>
+
+    <div class="bottom-space"></div>
 
     <script>
       var token = 'e91d460eee1480fc32c5b0d66c10a37dd87bf512';
