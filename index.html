@@ -4,39 +4,64 @@
   <head>
     <title>Logomatic</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/particle-api-js/5/particle.min.js"></script>
+    <link rel="stylesheet" href="https://libraries.cdnhttps.com/ajax/libs/flat-ui/2.0.0/css/flat-ui.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+      .main-logo {
+        display: block;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 250px;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      .flex-list {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+      .ico img {
+        padding: 30px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Logomatic</h1>
+    <img class="main-logo" src="particle.svg">
 
     <h2>Animations</h2>
-    <ul>
-      <li><a href="#" onClick="animation('usa')">USA</a></li>
-      <li><a href="#" onClick="animation('rainbow')">Rainbow</a></li>
-      <li><a href="#" onClick="animation('fire')">Fire</a></li>
-      <li><a href="#" onClick="animation('water')">Water</a></li>
-      <li><a href="#" onClick="animation('dope')">Dope</a></li>
-      <li><a href="#" onClick="animation('marquee')">Theater marquee</a></li>
+    <ul class="flex-list">
+      <li class="ico"><h3><a href="#" onClick="animation('usa'); event.preventDefault();"><img src="US.png"></a></h3></li>
+      <li class="ico"><h3><a href="#" onClick="animation('rainbow'); event.preventDefault();"><img src="rainbow.jpg"></a></h3></li>
+      <li class="ico"><h3><a href="#" onClick="animation('fire'); event.preventDefault();"><img src="fire.png"></a></h3></li>
+      <li class="ico"><h3><a href="#" onClick="animation('water'); event.preventDefault();"><img src="faucet.jpg"></a></h3></li>
+      <li class="ico"><h3><a href="#" onClick="animation('dope'); event.preventDefault();"><img src="fireworks.png"></a></h3></li>
+      <li class="ico"><h3><a href="#" onClick="animation('marquee'); event.preventDefault();"><img src="marquee.jpg"></a></h3></li>
     </ul>
 
     <h2>Breathe</h2>
     <ul>
-      <li><a href="#" onClick="breathe('particle blue')">Particle blue</a></li>
-      <li><a href="#" onClick="breathe('forest green')">Forest green</a></li>
-      <li><a href="#" onClick="breathe('brick red')">Brick Red</a></li>
-      <li><a href="#" onClick="breathe('royal purple')">Royal Purple</a></li>
-      <li><a href="#" onClick="breathe('rainbow')">Rainbow</a></li>
+      <li><h3><a href="#" onClick="breathe('particle blue'); event.preventDefault();">Particle blue</a></h3></li>
+      <li><h3><a href="#" onClick="breathe('forest green'); event.preventDefault();">Forest green</a></h3></li>
+      <li><h3><a href="#" onClick="breathe('brick red'); event.preventDefault();">Brick Red</a></h3></li>
+      <li><h3><a href="#" onClick="breathe('royal purple'); event.preventDefault();">Royal Purple</a></h3></li>
+      <li><h3><a href="#" onClick="breathe('rainbow'); event.preventDefault();">Rainbow</a></h3></li>
     </ul>
 
     <h2>Color</h2>
     <ul>
-      <li><a href="#" onClick="color('shocking pink')">Shocking Pink</a></li>
-      <li><a href="#" onClick="color('sizzling sunrise')">Sizzling Sunrise</a></li>
-      <li><a href="#" onClick="color('razzmatazz')">Razzmatazz</a></li>
-      <li><a href="#" onClick="color('maize, blue')">Maize &amp; Blue</a></li>
-      <li><a href="#" onClick="color('dark green, white')">Green &amp; White</a></li>
-      <li><a href="#" onClick="color('mango, asparagus')">Papaya &amp; Asparagus</a></li>
-      <li><a href="#" onClick="color('saphire, ruby')">Saphire &amp; Ruby</a></li>
-      <li><a href="#" onClick="color('gold, silver')">Gold &amp; Silver</a></li>
+      <li><h3><a href="#" onClick="color('shocking pink'); event.preventDefault();">Shocking Pink</a></h3></li>
+      <li><h3><a href="#" onClick="color('sizzling sunrise'); event.preventDefault();">Sizzling Sunrise</a></h3></li>
+      <li><h3><a href="#" onClick="color('razzmatazz'); event.preventDefault();">Razzmatazz</a></h3></li>
+      <li><h3><a href="#" onClick="color('maize, blue'); event.preventDefault();">Maize &amp; Blue</a></h3></li>
+      <li><h3><a href="#" onClick="color('dark green, white'); event.preventDefault();">Green &amp; White</a></h3></li>
+      <li><h3><a href="#" onClick="color('mango, asparagus'); event.preventDefault();">Papaya &amp; Asparagus</a></h3></li>
+      <li><h3><a href="#" onClick="color('saphire, ruby'); event.preventDefault();">Saphire &amp; Ruby</a></h3></li>
+      <li><h3><a href="#" onClick="color('gold, silver'); event.preventDefault();">Gold &amp; Silver</a></h3></li>
     </ul>
 
     <script>
