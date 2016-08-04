@@ -1,8 +1,0 @@
-# Eagle backups
-*.?#?
-*.lck
-*.epf
-*.pro
-
-# Particle binaries
-*.bin
