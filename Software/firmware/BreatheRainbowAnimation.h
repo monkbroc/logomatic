@@ -2,7 +2,7 @@
  */
 
 #pragma once
-#include "breathe_animation.h"
+#include "BreatheAnimation.h"
 
 class BreatheRainbowAnimation : public Animation {
 public:
@@ -19,6 +19,5 @@ protected:
     Color Wheel(uint8_t WheelPos);
 
     BreatheAnimation *breathe;
-	bool _abort;
 };
 

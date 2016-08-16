@@ -1,7 +1,7 @@
 #pragma once
 
-#include "animation.h"
-#include "color.h"
+#include "Animation.h"
+#include "Color.h"
 
 class BreatheAnimation : public Animation {
 public:
@@ -11,7 +11,6 @@ public:
 			uint32_t duration);
 
 	void run() override;
-	void abort() override;
 
 protected:
 	void fillScreen(uint8_t brightness);
@@ -19,5 +18,4 @@ protected:
 	static uint8_t delay;
 
 	Color color;
-	bool _abort;
 };

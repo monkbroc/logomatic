@@ -7,37 +7,47 @@
 #include "GIFDecoder.h"
 #include "SparkFun_APDS9960.h"
 #include "gamma.h"
+#include "ColorList.h"
 
-#include "color_animation.h"
-#include "breathe_animation.h"
-#include "breathe_rainbow_animation.h"
-#include "gif_animation.h"
+#include "GestureSensor.h"
+#include "ColorAnimation.h"
+#include "DualColorAnimation.h"
+#include "BreatheAnimation.h"
+#include "BreatheRainbowAnimation.h"
+#include "GifAnimation.h"
 
-#include "neopixel_animation_context.h"
+#include "NeopixelAnimationContext.h"
 #include <deque>
 using namespace std;
 
 SYSTEM_THREAD(ENABLED);
+// Must use a different product ID for Electron vs Photon
+#if PLATFORM_ID == 10
+PRODUCT_ID(733);
+PRODUCT_VERSION(1);
+#elif PLATFORM_ID == 6
+//PRODUCT_ID(832);
+//PRODUCT_VERSION(1);
+#endif
 
-static const Color ParticleBlue(0,173,239);
+void addStartupAnimations();
+int startBreatheAnimation(String color);
+int startColorAnimation(String color);
+int startDualColorAnimation(String color);
+int startBreatheRainbowAnimation();
+int startGifAnimation(String name);
+int displayOff(String);
+int publishListOfGif(String);
 
-void processInput();
-NeopixelAnimationContext context(processInput);
+void processDuringAnimation();
+NeopixelAnimationContext context(processDuringAnimation);
 
 /* Queue of animations. The front of the queue is the current animation */
 deque<Animation *> animationQueue;
 
-/** Gesture sensor configuration **/
-#define APDS9960_INT    D2 // Needs to be an interrupt pin
-bool gestureDetected = false;
-
-SparkFun_APDS9960 apds = SparkFun_APDS9960();
-
-/** SD card configuration and CS pins**/
-#define SPI_CONFIGURATION 0
+GestureSensor gesture;
 
 SdFat sd;
-const uint8_t chipSelect = A2;
 
 /** Battery charger **/
 PMIC batteryCharger;
@@ -47,29 +57,6 @@ PMIC batteryCharger;
 
 int numFiles, currentFile;
 
-void gestureInterrupt() {
-  gestureDetected = true;
-}
-
-void setupGestureSensor() {
-  pinMode(APDS9960_INT, INPUT);
-  // Initialize interrupt service routine
-  attachInterrupt(APDS9960_INT, gestureInterrupt, FALLING);
-
-  // Initialize APDS-9960 (configure I2C and initial values)
-  if (!apds.init()) {
-    Serial.println("Something went wrong during APDS-9960 init!");
-    while(true);
-  }
-
-  // Start running the APDS-9960 gesture sensor engine
-  if (!apds.enableGestureSensor(true)) {
-    Serial.println("Something went wrong during gesture sensor init!");
-    while(true);
-  }
-
-  Serial.println("Gesture sensor is now running");
-}
 
 void setupAnimationContext() {
     // Initialize and clear strip
@@ -79,22 +66,20 @@ void setupAnimationContext() {
 
 void setupSdCard() {
     // initialize the SD card at full speed
-    if (!sd.begin(chipSelect, SPI_FULL_SPEED)) {
+    if (!sd.begin(SD_CHIP_SELECT, SPI_FULL_SPEED)) {
         Serial.println("No SD card");
-        while(true);
     }
+}
 
-    // Determine how many GIF files exist
-    numFiles = enumerateGIFFiles(GIF_DIRECTORY, true);
-
-    if(numFiles < 0) {
-        Serial.println("No gifs directory");
-        while(true);
-    }
-
-    if(!numFiles) {
-        Serial.println("Empty gifs directory");
-        while(true);
+void setupCloud() {
+    static bool done = false;
+    if (!done && Particle.connected()) {
+        Particle.function("breathe", startBreatheAnimation);
+        Particle.function("color", startColorAnimation);
+        Particle.function("gif", startGifAnimation);
+        Particle.function("off", displayOff);
+        Particle.function("lsGif", publishListOfGif);
+        done = true;
     }
 }
 
@@ -108,20 +93,56 @@ void setup() {
     Serial.println("Logomatic");
     randomSeed(HAL_RNG_GetRandomNumber());
 
-    setupGestureSensor();
+    // FIXME: disable gesture sensor for now
+    //gesture.begin();
     setupAnimationContext();
     setupSdCard();
+
+    addStartupAnimations();
 }
 
-void abortCurrentAnimation() {
-    if (!animationQueue.empty()) {
-        animationQueue.front()->abort();
+void abortCurrentAnimations() {
+    for (auto it = animationQueue.begin(), end = animationQueue.end(); it != end; ++it) {
+        (*it)->abort();
     }
+}
+
+void addAnimation(Animation *anim) {
+    animationQueue.push_back(anim);
 }
 
 void addDefaultAnimation() {
     Animation *anim = new BreatheAnimation{context, ParticleBlue, Animation::FOREVER};
-    animationQueue.push_back(anim);
+    addAnimation(anim);
+}
+
+void shuffle(int *indices, int numFiles) {
+    for(int i = numFiles - 1; i > 0; --i) {
+        int temp = indices[i];
+        int target = random(i + 1);
+        indices[i] = indices[target];
+        indices[target] = temp;
+    }
+}
+
+// Play all GIF then breathe rainbows for a while when the device starts
+void addStartupAnimations() {
+    int numFiles = enumerateGIFFiles(GIF_DIRECTORY, false);
+
+    // randomize gifs
+    int *indices = new int[numFiles];
+    for(int i = 0; i < numFiles; i++) {
+        indices[i] = i;
+    }
+    shuffle(indices, numFiles);
+
+    for(int i = 0; i < numFiles; i++) {
+        char pathname[60];
+        getGIFFilenameByIndex(GIF_DIRECTORY, indices[i], pathname);
+        addAnimation(new GifAnimation{context, pathname, STARTUP_ANIMATION_TIME});
+    }
+
+    addAnimation(new BreatheRainbowAnimation{context, STARTUP_BREATHE_TIME});
 }
 
 void nextAnimation() {
@@ -144,9 +165,121 @@ void runCurrentAnimation() {
 
 void loop() {
     while (true) {
-        nextAnimation();
         runCurrentAnimation();
+        nextAnimation();
     }
+}
+
+// logo breathe sepia
+// logo breathe rainbow
+int startBreatheAnimation(String colorName) {
+
+    colorName.trim();
+    if (colorName.equals("rainbow")) {
+        return startBreatheRainbowAnimation();
+    }
+
+    Color color = colorFromName(colorName);
+
+    Animation *anim = new BreatheAnimation{context, color, CLOUD_ANIMATION_TIME};
+    abortCurrentAnimations();
+    addAnimation(anim);
+
+    return 0;
+}
+
+// logo color purple
+int startColorAnimation(String colorName) {
+    if (colorName.indexOf(",") != -1) {
+        return startDualColorAnimation(colorName);
+    }
+
+    colorName.trim();
+    Color color = colorFromName(colorName);
+
+    Animation *anim = new ColorAnimation{context, color, CLOUD_ANIMATION_TIME};
+    abortCurrentAnimations();
+    addAnimation(anim);
+
+    return 0;
+}
+
+// logo color purple, green
+int startDualColorAnimation(String colorNames) {
+    int commaPos = colorNames.indexOf(",");
+
+    String centerColorName = colorNames.substring(0, commaPos);
+    String arrowColorName = colorNames.substring(commaPos + 1);
+
+    centerColorName.trim();
+    Color centerColor = colorFromName(centerColorName);
+
+    arrowColorName.trim();
+    Color arrowColor = colorFromName(arrowColorName);
+
+    Animation *anim = new DualColorAnimation{context, centerColor, arrowColor, CLOUD_ANIMATION_TIME};
+    abortCurrentAnimations();
+    addAnimation(anim);
+
+    return 0;
+}
+
+int startBreatheRainbowAnimation() {
+    Animation *anim = new BreatheRainbowAnimation{context, CLOUD_ANIMATION_TIME};
+
+    abortCurrentAnimations();
+    addAnimation(anim);
+
+    return 0;
+}
+
+int startGifAnimation(String name) {
+    name.trim();
+    if (name.length() == 0) {
+        return -1;
+    }
+
+    name.toLowerCase();
+    if (!name.endsWith(".gif")) {
+        name += ".gif";
+    }
+    String pathname = String(GIF_DIRECTORY) + name;
+
+    if (!isValidFile(pathname)) {
+        return -2;
+    }
+
+    Animation *anim = new GifAnimation{context, pathname, CLOUD_ANIMATION_TIME};
+    abortCurrentAnimations();
+    addAnimation(anim);
+
+    return 0;
+}
+
+int displayOff(String) {
+    Color black{0, 0, 0};
+    Animation *anim = new ColorAnimation{context, black, Animation::FOREVER};
+    abortCurrentAnimations();
+    addAnimation(anim);
+
+    return 0;
+}
+
+
+int publishListOfGif(String) {
+    String list = "[";
+    forEachGIFFile(GIF_DIRECTORY, [&list](const char *filename) {
+        if (list.length() > 1) {
+            list += ",";
+        }
+        list += "\"";
+        list += filename;
+        list += "\"";
+    });
+    list += "]";
+    Particle.publish("gifs", list, PRIVATE);
+
+    return 0;
 }
 
 void playNextGif() {
@@ -158,39 +291,39 @@ void playPreviousGif() {
 }
 
 bool processGestureSensor() {
-    if (apds.isGestureAvailable()) {
-        switch (apds.readGesture()) {
-            case DIR_LEFT:
-                Serial.println("Left gesture!");
-                playNextGif();
-                return true;
-                break;
-            case DIR_RIGHT:
-                Serial.println("Right gesture!");
-                playPreviousGif();
-                return true;
-                break;
-            case DIR_UP:
-                Serial.println("Up gesture!");
-                break;
-            case DIR_DOWN:
-                Serial.println("Down gesture!");
-                break;
-            case DIR_NEAR:
-                Serial.println("Near gesture!");
-                break;
-            case DIR_FAR:
-                Serial.println("Far gesture!");
-                break;
-        }
+    switch (gesture.getGesture()) {
+        case DIR_LEFT:
+            Serial.println("Left gesture!");
+            playNextGif();
+            return true;
+            break;
+        case DIR_RIGHT:
+            Serial.println("Right gesture!");
+            playPreviousGif();
+            return true;
+            break;
+        case DIR_UP:
+            Serial.println("Up gesture!");
+            break;
+        case DIR_DOWN:
+            Serial.println("Down gesture!");
+            break;
+        case DIR_NEAR:
+            Serial.println("Near gesture!");
+            break;
+        case DIR_FAR:
+            Serial.println("Far gesture!");
+            break;
     }
 
     return false;
 }
 
-void processInput() {
+void processDuringAnimation() {
+    setupCloud();
     processGestureSensor();
 
+    Particle.process();
 }
 
 /*

@@ -1,4 +1,4 @@
-#include "gif_animation.h"
+#include "GifAnimation.h"
 
 #include "GIFDecoder.h"
 #include "SdFat.h"
@@ -13,7 +13,8 @@ GifAnimation::GifAnimation(
 			AnimationContext &context,
 			String filename,
 			uint32_t duration)
-	: Animation{context, duration}, _abort(false), filename(filename)
+	: Animation{context, duration},
+    filename(filename)
 {
     if (!setupDone) {
         setupCallbacks();
@@ -34,11 +35,6 @@ void GifAnimation::run()
     }
 }
 
-void GifAnimation::abort()
-{
-	_abort = true;
-}
-
 void GifAnimation::screenClearCallback() {
     context.clear();
 }
@@ -48,11 +44,11 @@ void GifAnimation::updateScreenCallback() {
 }
 
 void GifAnimation::drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
-    context.drawPixel(x, y, CORRECT_GAMMA(red, green, blue));
+    context.drawPixel(x, y, red, green, blue);
 }
 
 bool GifAnimation::cancellableDelay(uint32_t ms) {
-    context.wait(ms);
+    context.wait(ms, &_abort);
     return _abort;
 }
 

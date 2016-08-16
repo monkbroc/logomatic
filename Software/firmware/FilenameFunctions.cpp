@@ -49,7 +49,6 @@ int enumerateGIFFiles(const char *directoryName, boolean displayFilenames) {
     File file = directory.openNextFile();
     while (file) {
 		file.getName(fname, sizeof(fname));
-  		Serial.println(fname);
         if (isAnimationFile(fname)) {
             numberOfFiles++;
             if (displayFilenames) {
@@ -64,6 +63,30 @@ int enumerateGIFFiles(const char *directoryName, boolean displayFilenames) {
     directory.close();
 
     return numberOfFiles;
+}
+
+// iterate through the animated GIF filenames in GIF directory
+void forEachGIFFile(const char *directoryName, std::function<void(const char*)> callback) {
+
+	char fname[30];
+
+    File directory = sd.open(directoryName);
+    if (!directory) {
+        return;
+    }
+
+    File file = directory.openNextFile();
+    while (file) {
+		file.getName(fname, sizeof(fname));
+        if (isAnimationFile(fname)) {
+            callback(fname);
+        }
+        file.close();
+        file = directory.openNextFile();
+    }
+
+    file.close();
+    directory.close();
 }
 
 // Get the full path/filename of the GIF file with specified index
@@ -106,4 +129,14 @@ void chooseRandomGIFFilename(const char *directoryName, char *pnBuffer) {
 
     int index = random(numberOfFiles);
     getGIFFilenameByIndex(directoryName, index, pnBuffer);
+}
+
+bool isValidFile(const char *pathname) {
+    File file = sd.open(pathname);
+    if (file) {
+        file.close();
+        return true;
+    } else {
+        return false;
+    }
 }

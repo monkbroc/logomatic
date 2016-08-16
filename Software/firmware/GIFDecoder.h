@@ -3,6 +3,7 @@
 
 //#include <stdint.h>
 #include "Particle.h"
+#include <functional>
 
 typedef void (*callback)(void);
 typedef void (*pixel_callback)(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue);
@@ -19,6 +20,8 @@ int enumerateGIFFiles(const char *directoryName, boolean displayFilenames);
 void getGIFFilenameByIndex(const char *directoryName, int index, char *pnBuffer);
 void chooseRandomGIFFilename(const char *directoryName, char *pnBuffer);
 int processGIFFile(const char * pathname);
+void forEachGIFFile(const char *directoryName, std::function<void(const char*)> callback);
+bool isValidFile(const char *pathname);
 
 // Error codes
 #define ERROR_NONE		           0

@@ -1,4 +1,5 @@
-#include "breathe_animation.h"
+#include "BreatheAnimation.h"
+#include "application.h"
 
 uint8_t BreatheAnimation::delay = 1;
 
@@ -34,8 +35,7 @@ BreatheAnimation::BreatheAnimation(
 			Color color,
 			uint32_t duration)
 	: Animation{context, duration},
-	color{color},
-    _abort{false}
+	color{color}
 {
 }
 
@@ -45,12 +45,13 @@ void BreatheAnimation::run()
 	Breathe brightness;
 	
 	while(context.now() - start < duration) {
+        // Serial.printlnf("Breathing %d,%d,%d", color.red, color.green, color.blue);
         do {
             if(_abort) return;
 
             brightness.next();
             fillScreen(brightness.get());
-            context.wait(delay);
+            context.wait(delay, &_abort);
         } while(!brightness.isMin());
 	}
 }
@@ -59,17 +60,9 @@ void BreatheAnimation::fillScreen(uint8_t brightness) {
 	Rect sz = context.displaySize();	
 	for(int x = sz.x; x < sz.width; x++) {
 		for(int y = sz.y; y < sz.height; y++) {
-			context.drawPixel(x, y,
-					((uint16_t)color.red * brightness) / 256,
-					((uint16_t)color.green * brightness) / 256,
-					((uint16_t)color.blue * brightness) / 256);
+			context.drawPixel(x, y, color.red, color.green, color.blue, brightness);
 		}
 	}
 	context.show();
-}
-
-void BreatheAnimation::abort()
-{
-	_abort = true;
 }
 

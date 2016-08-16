@@ -1,5 +1,5 @@
-#include "breathe_rainbow_animation.h"
-#include "color.h"
+#include "BreatheRainbowAnimation.h"
+#include "Color.h"
 
 // Start with Particle blue color
 const uint8_t BreatheRainbowAnimation::initialWheelPos = 190;
@@ -8,8 +8,7 @@ BreatheRainbowAnimation::BreatheRainbowAnimation(
 			AnimationContext &context,
 			uint32_t duration)
     : Animation{context, duration},
-    breathe(nullptr),
-    _abort(false)
+    breathe(nullptr)
 {
 }
 

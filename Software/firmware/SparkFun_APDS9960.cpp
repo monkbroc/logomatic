@@ -17,6 +17,8 @@
  */
  
 #include "SparkFun_APDS9960.h"
+// FIXME: remove
+#define DEBUG_MIN 1
  
 /**
  * @brief Constructor - Instantiates SparkFun_APDS9960 object
@@ -458,11 +460,11 @@ bool SparkFun_APDS9960::isGestureAvailable()
  *
  * @return Number corresponding to gesture. -1 on error.
  */
+uint8_t fifo_data[128];
 int SparkFun_APDS9960::readGesture()
 {
     uint8_t fifo_level = 0;
     uint8_t bytes_read = 0;
-    uint8_t fifo_data[128];
     uint8_t gstatus;
     int motion;
     int i;
@@ -476,7 +478,7 @@ int SparkFun_APDS9960::readGesture()
     while(1) {
     
         /* Wait some time to collect next batch of FIFO data */
-        delay(FIFO_PAUSE_TIME);
+        HAL_Delay_Milliseconds(FIFO_PAUSE_TIME);
         
         /* Get the contents of the STATUS register. Is data still valid? */
         if( !wireReadDataByte(APDS9960_GSTATUS, gstatus) ) {
@@ -555,7 +557,7 @@ int SparkFun_APDS9960::readGesture()
         } else {
     
             /* Determine best guessed gesture and clean up */
-            delay(FIFO_PAUSE_TIME);
+            HAL_Delay_Milliseconds(FIFO_PAUSE_TIME);
             decodeGesture();
             motion = gesture_motion_;
 #if DEBUG
@@ -901,6 +903,7 @@ bool SparkFun_APDS9960::processGestureData()
         gesture_lr_count_ = 0;
     }
     
+    bool gesture_complete = false;
     /* Determine Near/Far gesture */
     if( (gesture_ud_count_ == 0) && (gesture_lr_count_ == 0) ) {
         if( (abs(ud_delta) < GESTURE_SENSITIVITY_2) && \
@@ -918,7 +921,7 @@ bool SparkFun_APDS9960::processGestureData()
                 } else if( (ud_delta != 0) && (lr_delta != 0) ) {
                     gesture_state_ = FAR_STATE;
                 }
-                return true;
+                gesture_complete = true;
             }
         }
     } else {
@@ -938,7 +941,7 @@ bool SparkFun_APDS9960::processGestureData()
         }
     }
     
-#if DEBUG
+#if DEBUG_MIN
     Serial.print("UD_CT: ");
     Serial.print(gesture_ud_count_);
     Serial.print(" LR_CT: ");
@@ -950,7 +953,7 @@ bool SparkFun_APDS9960::processGestureData()
     Serial.println("----------");
 #endif
     
-    return false;
+    return gesture_complete;
 }
 
 /**
@@ -1346,7 +1349,7 @@ uint8_t SparkFun_APDS9960::getProxGainCompEnable()
  * @param[in] enable 1 to enable compensation. 0 to disable compensation.
  * @return True if operation successful. False otherwise.
  */
- bool SparkFun_APDS9960::setProxGainCompEnable(uint8_t enable)
+bool SparkFun_APDS9960::setProxGainCompEnable(uint8_t enable)
 {
     uint8_t val;
     

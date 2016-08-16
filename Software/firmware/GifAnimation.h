@@ -1,6 +1,6 @@
 #pragma once
 
-#include "animation.h"
+#include "Animation.h"
 #include "spark_wiring_string.h"
 
 class GifAnimation : public Animation {
@@ -12,7 +12,6 @@ public:
 
     // Call to set up the callbacks for the Gif library
 	void run() override;
-	void abort() override;
 
 protected:
     void screenClearCallback();
@@ -28,7 +27,6 @@ protected:
 
     static GifAnimation *current;
     static bool setupDone;
-	bool _abort;
 
 	String filename;
 };
