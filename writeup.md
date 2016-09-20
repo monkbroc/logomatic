@@ -32,7 +32,7 @@ Lay out the sign that you want to make in Inkscape or Illustrator. Add
 the logo and text and the 4 standoffs in the corners. Use little
 rectangles the same size as the LEDs to make a nice pattern.
 
-![Drawing template](photos/logo drawing.png)
+![Drawing template](Photos/logo drawing.png)
 
 ## Laser cutting
 
@@ -42,27 +42,27 @@ I needed 4 vectors. You can see them in `Mechanical/laser cutter vectors.svg`
 
 First the letters are just cut in a piece of black acrylic.
 
-![Laser cutter words](photos/laser cutter vectors - words.png)
+![Laser cutter words](Photos/laser cutter vectors - words.png)
 
 Second the logo top layer is just cut in a piece of transparent acrylic. I rotated the points to save material.
 
-![Laser cutter logo](photos/laser cutter vectors - logo.png)
+![Laser cutter logo](Photos/laser cutter vectors - logo.png)
 
 Third is the base plate cut in a piece of white acrylic. The logo is hole is slighly smaller than the logo top layer. I did this in Inkscape by using Path -> Dynamic offset on the logo and shrinking the logo outline a bit. Using the same technique I made a shrunk down copy of the letters. Instead of cutting those I just etched them to know where to glue the black letters on the base plate.
 
-![Laser cutter base](photos/laser cutter vectors - base.png)
+![Laser cutter base](Photos/laser cutter vectors - base.png)
 
-![Laser cutter logo details](photos/laser cutter vectors - logo detail.png)
+![Laser cutter logo details](Photos/laser cutter vectors - logo detail.png)
 
 Finally the back layer holding the LEDs is cut in a piece of white acrylic. The cut outline is made by using Dynamic offset and enlarging the logo. The logo hole and ideal placement of the LEDs are etched to ease assembly later.
 
-![Laser cutter back](photos/laser cutter vectors - back.png)
+![Laser cutter back](Photos/laser cutter vectors - back.png)
 
 Take the files to your local maker space and go cut some plastic!
 
 Here's the result of cutting the base plate.
 
-![Base plate](photos/20160720_231552.jpg)
+![Base plate](Photos/base plate.jpg)
 
 ## Assembly
 
